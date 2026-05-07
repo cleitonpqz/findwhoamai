@@ -28,6 +28,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
   const [match, setMatch] = useState<Match | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
   // Load the match on mount
   useEffect(() => {
@@ -37,6 +38,20 @@ export default function MatchView({ matchId }: MatchViewProps) {
         setError(e instanceof Error ? e.message : "Failed to load match."),
       );
   }, [matchId]);
+
+  async function withPending<T>(
+    action: () => Promise<T>,
+  ): Promise<T | undefined> {
+    if (isPending) return;
+    setIsPending(true);
+    try {
+      return await action();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "An error occurred.");
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   if (error) {
     return (
@@ -66,51 +81,61 @@ export default function MatchView({ matchId }: MatchViewProps) {
   // ============================================================
 
   async function handleRevealNext() {
-    try {
-      const updated = await revealNextClue(matchId);
-      setMatch({ ...updated });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to reveal clue.");
-    }
+    await withPending(async () => {
+      try {
+        const updated = await revealNextClue(matchId);
+        setMatch({ ...updated });
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to reveal clue.");
+      }
+    });
   }
 
   async function handleAward(playerId: string) {
-    try {
-      const updated = await awardPoint(matchId, playerId);
-      setMatch({ ...updated });
-      setShowAnswer(true);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to award point.");
-    }
+    await withPending(async () => {
+      try {
+        const updated = await awardPoint(matchId, playerId);
+        setMatch({ ...updated });
+        setShowAnswer(true);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to award point.");
+      }
+    });
   }
 
   async function handleSkip() {
-    try {
-      const updated = await skipRound(matchId);
-      setMatch({ ...updated });
-      setShowAnswer(true);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to skip round.");
-    }
+    await withPending(async () => {
+      try {
+        const updated = await skipRound(matchId);
+        setMatch({ ...updated });
+        setShowAnswer(true);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to skip round.");
+      }
+    });
   }
 
   async function handleNextRound() {
-    try {
-      const updated = await nextRound(matchId);
-      setMatch({ ...updated });
-      setShowAnswer(false);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to advance round.");
-    }
+    await withPending(async () => {
+      try {
+        const updated = await nextRound(matchId);
+        setMatch({ ...updated });
+        setShowAnswer(false);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to advance round.");
+      }
+    });
   }
 
   async function handleEndMatch() {
-    try {
-      const updated = await endMatch(matchId);
-      setMatch({ ...updated });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to end match.");
-    }
+    await withPending(async () => {
+      try {
+        const updated = await endMatch(matchId);
+        setMatch({ ...updated });
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to end match.");
+      }
+    });
   }
 
   // ============================================================
@@ -179,6 +204,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
         <span>Round {currentRound.index + 1}</span>
         <button
           onClick={handleEndMatch}
+          disabled={isPending}
           className="text-red-600 hover:text-red-800"
         >
           End match
@@ -220,10 +246,12 @@ export default function MatchView({ matchId }: MatchViewProps) {
       {!roundEnded && hasMoreClues && (
         <button
           onClick={handleRevealNext}
+          disabled={isPending}
           className="w-full py-3 bg-blue-600 text-white text-lg font-semibold rounded-md hover:bg-blue-700"
         >
-          Next clue ({currentRound.revealedClues}/
-          {currentRound.card.clues.length})
+          {isPending
+            ? "Loading…"
+            : `Next clue (${currentRound.revealedClues}/${currentRound.card.clues.length})`}
         </button>
       )}
 
@@ -236,6 +264,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
               <button
                 key={player.id}
                 onClick={() => handleAward(player.id)}
+                disabled={isPending}
                 className="px-4 py-3 bg-green-100 hover:bg-green-200 rounded-md text-left"
               >
                 <div className="font-medium">{player.name}</div>
@@ -247,6 +276,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
           </div>
           <button
             onClick={handleSkip}
+            disabled={isPending}
             className="w-full py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm"
           >
             Skip round (no winner)
@@ -258,9 +288,10 @@ export default function MatchView({ matchId }: MatchViewProps) {
       {roundEnded && (
         <button
           onClick={handleNextRound}
+          disabled={isPending}
           className="w-full py-3 bg-blue-600 text-white text-lg font-semibold rounded-md hover:bg-blue-700"
         >
-          Next round →
+          {isPending ? "Generating next card…" : "Next round →"}
         </button>
       )}
 
