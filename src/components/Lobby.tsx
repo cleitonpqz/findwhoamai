@@ -185,7 +185,7 @@ export default function Lobby() {
         disabled={isStarting}
         className="w-full py-3 bg-green-600 text-white text-lg font-semibold rounded-md hover:bg-green-700 disabled:opacity-50"
       >
-        {isStarting ? "Starting…" : "Start match"}
+        {isStarting ? "Generating first card…" : "Start match"}
       </button>
     </div>
   );

@@ -4,7 +4,40 @@ import type {
   MatchConfig,
   Player,
   PlayerId,
+  ProfileTypeId,
 } from "@/types/domain";
+
+// ============================================================
+// Card generation — calls the /api/cards/generate route handler
+// ============================================================
+
+async function generateCardFromApi(
+  profileType: ProfileTypeId,
+): Promise<Card | null> {
+  try {
+    const response = await fetch("/api/cards/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        profileType,
+        cluesPerCard: 10,
+        locale: "pt-BR",
+      }),
+    });
+
+    if (!response.ok) {
+      console.warn(
+        `Card generation API returned ${response.status}, using fallback`,
+      );
+      return null;
+    }
+
+    return (await response.json()) as Card;
+  } catch (error) {
+    console.warn("Card generation API failed, using fallback:", error);
+    return null;
+  }
+}
 
 // ============================================================
 // FAKE DATA — replaces LLM calls until the real backend is wired up
@@ -101,11 +134,28 @@ function generateId(prefix: string): string {
 const matchStore = new Map<string, Match>();
 let cardCursor = 0;
 
-function nextCard(): Card {
-  const card = FAKE_CARDS[cardCursor % FAKE_CARDS.length];
+async function nextCard(allowedTypes: ProfileTypeId[]): Promise<Card> {
+  // Pick a random allowed profile type — falls back to all types if none specified
+  const types =
+    allowedTypes.length > 0
+      ? allowedTypes
+      : (["PERSON", "PLACE", "THING", "ANIMAL"] as ProfileTypeId[]);
+  const chosenType = types[Math.floor(Math.random() * types.length)];
+
+  // Try to generate via Claude; fall back to hardcoded cards on failure
+  const generated = await generateCardFromApi(chosenType);
+  if (generated) {
+    return generated;
+  }
+
+  // Fallback: cycle through hardcoded cards filtered by allowed types
+  const eligibleFallbacks = FAKE_CARDS.filter((card) =>
+    types.includes(card.profileType),
+  );
+  const fallback =
+    eligibleFallbacks[cardCursor % eligibleFallbacks.length] ?? FAKE_CARDS[0];
   cardCursor += 1;
-  // Clone so we don't share a mutable reference across rounds
-  return { ...card, id: generateId("card") };
+  return { ...fallback, id: generateId("card") };
 }
 
 // ============================================================
@@ -147,7 +197,7 @@ export async function startMatch(matchId: string): Promise<Match> {
 
   const firstRound = {
     index: 0,
-    card: nextCard(),
+    card: await nextCard(match.config.allowedProfileTypes),
     revealedClues: 1,
     winner: null,
     ended: false,
@@ -202,7 +252,7 @@ export async function nextRound(matchId: string): Promise<Match> {
 
   const newRound = {
     index: match.rounds.length,
-    card: nextCard(),
+    card: await nextCard(match.config.allowedProfileTypes),
     revealedClues: 1,
     winner: null,
     ended: false,
