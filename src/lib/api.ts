@@ -7,6 +7,8 @@ import type {
   ProfileTypeId,
 } from "@/types/domain";
 
+import fallbackData from "./fallback-cards.json";
+
 // ============================================================
 // Card generation — calls the /api/cards/generate route handler
 // ============================================================
@@ -43,80 +45,17 @@ async function generateCardFromApi(
 // FAKE DATA — replaces LLM calls until the real backend is wired up
 // ============================================================
 
-const FAKE_CARDS: Card[] = [
-  {
-    id: "card-1",
-    profileType: "ANIMAL",
-    answer: "Elefante",
-    locale: "pt-BR",
-    clues: [
-      { order: 1, kind: "HINT", text: "Sou um mamífero terrestre." },
-      {
-        order: 2,
-        kind: "HINT",
-        text: "Vivo em manadas lideradas por uma fêmea.",
-      },
-      { order: 3, kind: "HINT", text: "Posso viver mais de 60 anos." },
-      { order: 4, kind: "HINT", text: "Tenho uma memória excepcional." },
-      {
-        order: 5,
-        kind: "HINT",
-        text: "Existem espécies em dois continentes diferentes.",
-      },
-      { order: 6, kind: "HINT", text: "Minha pele é grossa e enrugada." },
-      {
-        order: 7,
-        kind: "HINT",
-        text: "Uso minhas orelhas grandes para regular a temperatura.",
-      },
-      { order: 8, kind: "HINT", text: "Tenho presas de marfim." },
-      {
-        order: 9,
-        kind: "HINT",
-        text: "Sou o maior animal terrestre do mundo.",
-      },
-      {
-        order: 10,
-        kind: "HINT",
-        text: "Tenho uma tromba longa que uso pra beber água.",
-      },
-    ],
-  },
-  {
-    id: "card-2",
-    profileType: "PLACE",
-    answer: "Paris",
-    locale: "pt-BR",
-    clues: [
-      { order: 1, kind: "HINT", text: "Sou uma capital europeia." },
-      { order: 2, kind: "HINT", text: "Tenho mais de 2 mil anos de história." },
-      { order: 3, kind: "HINT", text: "Um rio famoso me corta ao meio." },
-      { order: 4, kind: "HINT", text: "Sou conhecida como a cidade-luz." },
-      {
-        order: 5,
-        kind: "HINT",
-        text: "Sou famosa pela minha gastronomia e moda.",
-      },
-      {
-        order: 6,
-        kind: "HINT",
-        text: "Abrigo um dos museus mais visitados do mundo.",
-      },
-      {
-        order: 7,
-        kind: "HINT",
-        text: "Tenho uma avenida famosa chamada Champs-Élysées.",
-      },
-      { order: 8, kind: "HINT", text: "Em mim fica o museu do Louvre." },
-      { order: 9, kind: "HINT", text: "Sou a capital da França." },
-      {
-        order: 10,
-        kind: "HINT",
-        text: "Tenho uma torre de ferro de 330 metros como meu símbolo.",
-      },
-    ],
-  },
-];
+const FAKE_CARDS: Card[] = fallbackData.map((entry, index) => ({
+  id: `fallback-${index}`,
+  profileType: entry.profileType as ProfileTypeId,
+  answer: entry.answer,
+  locale: "pt-BR",
+  clues: entry.clues.map((text, i) => ({
+    order: i + 1,
+    kind: "HINT" as const,
+    text,
+  })),
+}));
 
 // ============================================================
 // Internal helpers — simulate latency and id generation
@@ -132,7 +71,6 @@ function generateId(prefix: string): string {
 
 // In-memory "database" — lives while the tab is open
 const matchStore = new Map<string, Match>();
-let cardCursor = 0;
 
 async function nextCard(allowedTypes: ProfileTypeId[]): Promise<Card> {
   // Pick a random allowed profile type — falls back to all types if none specified
@@ -149,13 +87,12 @@ async function nextCard(allowedTypes: ProfileTypeId[]): Promise<Card> {
   }
 
   // Fallback: cycle through hardcoded cards filtered by allowed types
-  const eligibleFallbacks = FAKE_CARDS.filter((card) =>
+  const eligible = FAKE_CARDS.filter((card) =>
     types.includes(card.profileType),
   );
-  const fallback =
-    eligibleFallbacks[cardCursor % eligibleFallbacks.length] ?? FAKE_CARDS[0];
-  cardCursor += 1;
-  return { ...fallback, id: generateId("card") };
+  const random =
+    eligible[Math.floor(Math.random() * eligible.length)] ?? FAKE_CARDS[0];
+  return { ...random, id: generateId("card") };
 }
 
 // ============================================================
