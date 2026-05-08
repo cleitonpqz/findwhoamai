@@ -52,11 +52,9 @@ The yellow banner at the top of the site signals this to users.
 - Trigger: when we need pre-generated card pools (e.g., for a Daily Challenge feature)
 - Effort: medium — requires schema and validator changes
 
-### 5. Expand the fallback bundle
+### 5. Expand the fallback bundle ✅ DONE (Day 2)
 
-- Hardcoded fallback currently has 2 cards (Elefante, Paris)
-- Expanding to 20-30 cards per profile type makes the demo resilient even
-  with no AI credit at all
-- Trigger: any time. Cheap to do, high value for a public demo.
-- Effort: low. Validate that hardcoded answers don't leak in their own clues
-  (same validator the API uses).
+- Bundle now contains 32 validated cards (8 per profile type)
+- Generated once via `scripts/generate-fallback.ts` and committed to the repo
+- Same validator the API uses ensured no answer leakage
+- Demo remains fully playable when the Anthropic credit runs out
