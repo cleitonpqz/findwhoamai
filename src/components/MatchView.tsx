@@ -11,12 +11,21 @@ import {
   skipRound,
 } from "@/lib/api";
 import type { Match, ProfileTypeId } from "@/types/domain";
+import { buildMatchSummary } from "@/lib/match-stats";
+import type { RoundSummary } from "@/lib/match-stats";
 
 const PROFILE_TYPE_LABEL: Record<ProfileTypeId, string> = {
   PERSON: "Sou um Personagem ou Pessoa",
   PLACE: "Sou um Lugar",
   THING: "Sou uma Coisa",
   ANIMAL: "Sou um Animal",
+};
+
+const PROFILE_TYPE_SHORT_LABEL: Record<ProfileTypeId, string> = {
+  PERSON: "Pessoa",
+  PLACE: "Lugar",
+  THING: "Coisa",
+  ANIMAL: "Animal",
 };
 
 interface MatchViewProps {
@@ -143,34 +152,117 @@ export default function MatchView({ matchId }: MatchViewProps) {
   // ============================================================
 
   if (isMatchFinished) {
-    const ranking = [...match.players].sort(
-      (a, b) => (match.scores[b.id] ?? 0) - (match.scores[a.id] ?? 0),
-    );
-    const topScore = match.scores[ranking[0]?.id] ?? 0;
+    const summary = buildMatchSummary(match);
+    const ranking = [...summary.playerStats].sort((a, b) => b.wins - a.wins);
+    const topScore = ranking[0]?.wins ?? 0;
 
     return (
       <div className="max-w-md mx-auto p-6 space-y-6">
         <h1 className="text-3xl font-bold text-center">Match finished</h1>
-        <ul className="space-y-2">
-          {ranking.map((player) => {
-            const score = match.scores[player.id] ?? 0;
-            const isWinner = score === topScore && score > 0;
-            return (
+
+        {/* Ranking */}
+        <section className="space-y-2">
+          <h2 className="text-xl font-semibold">Final ranking</h2>
+          <ul className="space-y-2">
+            {ranking.map((player) => {
+              const isWinner = player.wins === topScore && topScore > 0;
+              return (
+                <li
+                  key={player.playerId}
+                  className={`flex justify-between px-4 py-3 rounded-md ${
+                    isWinner ? "bg-yellow-100 font-bold" : "bg-gray-100"
+                  }`}
+                >
+                  <span>
+                    {isWinner && "🏆 "}
+                    {player.playerName}
+                  </span>
+                  <span>{player.wins} pts</span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        {/* Match overview */}
+        <section className="bg-blue-50 px-4 py-3 rounded-md space-y-1 text-sm">
+          <h2 className="text-base font-semibold mb-2">Match overview</h2>
+          <div className="flex justify-between">
+            <span className="text-gray-700">Rounds played</span>
+            <span className="font-medium">{summary.totalRounds}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-700">Rounds skipped</span>
+            <span className="font-medium">{summary.totalSkips}</span>
+          </div>
+          {summary.hardestRound && (
+            <div className="flex justify-between">
+              <span className="text-gray-700">Hardest round</span>
+              <span className="font-medium">
+                {summary.hardestRound.answer} (
+                {summary.hardestRound.cluesRevealed} clues)
+              </span>
+            </div>
+          )}
+          {summary.easiestRound && (
+            <div className="flex justify-between">
+              <span className="text-gray-700">Easiest round</span>
+              <span className="font-medium">
+                {summary.easiestRound.answer} (
+                {summary.easiestRound.cluesRevealed} clues)
+              </span>
+            </div>
+          )}
+          {summary.mostFrequentProfileType && (
+            <div className="flex justify-between">
+              <span className="text-gray-700">Most frequent type</span>
+              <span className="font-medium">
+                {
+                  PROFILE_TYPE_SHORT_LABEL[
+                    summary.mostFrequentProfileType.profileType
+                  ]
+                }{" "}
+                ({summary.mostFrequentProfileType.count})
+              </span>
+            </div>
+          )}
+        </section>
+
+        {/* Player stats */}
+        <section className="space-y-2">
+          <h2 className="text-xl font-semibold">Player stats</h2>
+          <ul className="space-y-2">
+            {summary.playerStats.map((player) => (
               <li
-                key={player.id}
-                className={`flex justify-between px-4 py-3 rounded-md ${
-                  isWinner ? "bg-yellow-100 font-bold" : "bg-gray-100"
-                }`}
+                key={player.playerId}
+                className="px-4 py-3 bg-gray-100 rounded-md"
               >
-                <span>
-                  {isWinner && "🏆 "}
-                  {player.name}
-                </span>
-                <span>{score} pts</span>
+                <div className="font-medium">{player.playerName}</div>
+                <div className="text-sm text-gray-600 mt-1">
+                  {player.wins} {player.wins === 1 ? "win" : "wins"}
+                  {player.averageCluesToWin !== null && (
+                    <>
+                      {" · "}
+                      avg {player.averageCluesToWin.toFixed(1)} clues to win
+                    </>
+                  )}
+                </div>
               </li>
-            );
-          })}
-        </ul>
+            ))}
+          </ul>
+        </section>
+
+        {/* Round-by-round */}
+        <section className="space-y-2">
+          <h2 className="text-xl font-semibold">Round by round</h2>
+          <ul className="space-y-2">
+            {summary.rounds.map((round) => (
+              <RoundSummaryCard key={round.index} round={round} />
+            ))}
+          </ul>
+        </section>
+
+        {/* New match */}
         <button
           onClick={() => router.push("/")}
           className="w-full py-3 bg-blue-600 text-white text-lg font-semibold rounded-md hover:bg-blue-700"
@@ -302,5 +394,29 @@ export default function MatchView({ matchId }: MatchViewProps) {
         </p>
       )}
     </div>
+  );
+}
+
+function RoundSummaryCard({ round }: { round: RoundSummary }) {
+  const wasSkipped = round.winnerName === null;
+
+  return (
+    <li className="px-4 py-3 bg-gray-100 rounded-md">
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-500 uppercase tracking-wide">
+          Round {round.index + 1} ·{" "}
+          {PROFILE_TYPE_SHORT_LABEL[round.profileType]}
+        </span>
+        <span className="text-xs text-gray-500">
+          {round.cluesRevealed}/{round.totalClues} clues
+        </span>
+      </div>
+      <div className="font-medium mt-1">{round.answer}</div>
+      <div
+        className={`text-sm mt-1 ${wasSkipped ? "text-gray-500 italic" : "text-green-700"}`}
+      >
+        {wasSkipped ? "No winner" : `Won by ${round.winnerName}`}
+      </div>
+    </li>
   );
 }
