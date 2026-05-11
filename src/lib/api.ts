@@ -15,6 +15,7 @@ import fallbackData from "./fallback-cards.json";
 
 async function generateCardFromApi(
   profileType: ProfileTypeId,
+  exclusions: string[],
 ): Promise<Card | null> {
   try {
     const response = await fetch("/api/cards/generate", {
@@ -24,6 +25,7 @@ async function generateCardFromApi(
         profileType,
         cluesPerCard: 10,
         locale: "pt-BR",
+        exclusions,
       }),
     });
 
@@ -72,7 +74,10 @@ function generateId(prefix: string): string {
 // In-memory "database" — lives while the tab is open
 const matchStore = new Map<string, Match>();
 
-async function nextCard(allowedTypes: ProfileTypeId[]): Promise<Card> {
+async function nextCard(
+  allowedTypes: ProfileTypeId[],
+  exclusions: string[] = [],
+): Promise<Card> {
   // Pick a random allowed profile type — falls back to all types if none specified
   const types =
     allowedTypes.length > 0
@@ -81,7 +86,7 @@ async function nextCard(allowedTypes: ProfileTypeId[]): Promise<Card> {
   const chosenType = types[Math.floor(Math.random() * types.length)];
 
   // Try to generate via Claude; fall back to hardcoded cards on failure
-  const generated = await generateCardFromApi(chosenType);
+  const generated = await generateCardFromApi(chosenType, exclusions);
   if (generated) {
     return generated;
   }
@@ -134,7 +139,7 @@ export async function startMatch(matchId: string): Promise<Match> {
 
   const firstRound = {
     index: 0,
-    card: await nextCard(match.config.allowedProfileTypes),
+    card: await nextCard(match.config.allowedProfileTypes, []),
     revealedClues: 1,
     winner: null,
     ended: false,
@@ -187,21 +192,26 @@ export async function nextRound(matchId: string): Promise<Match> {
   await delay(200);
   const match = requireMatch(matchId);
 
+  // Check if we've already played all target rounds — finish the match without generating a new card
+  if (
+    match.config.targetRounds > 0 &&
+    match.rounds.length >= match.config.targetRounds
+  ) {
+    match.state = "FINISHED";
+    return match;
+  }
+
   const newRound = {
     index: match.rounds.length,
-    card: await nextCard(match.config.allowedProfileTypes),
+    card: await nextCard(
+      match.config.allowedProfileTypes,
+      collectAnswers(match),
+    ),
     revealedClues: 1,
     winner: null,
     ended: false,
   };
   match.rounds.push(newRound);
-
-  if (
-    match.config.targetRounds > 0 &&
-    match.rounds.length > match.config.targetRounds
-  ) {
-    match.state = "FINISHED";
-  }
 
   return match;
 }
@@ -227,4 +237,8 @@ function currentRound(match: Match) {
   const round = match.rounds[match.rounds.length - 1];
   if (!round) throw new Error("No active round");
   return round;
+}
+
+function collectAnswers(match: Match): string[] {
+  return match.rounds.map((round) => round.card.answer);
 }
