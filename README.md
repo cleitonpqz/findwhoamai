@@ -116,6 +116,10 @@ This project is open source and available under the [MIT License](LICENSE).
 - [Next.js](https://nextjs.org) team for the amazing framework
 - [next-intl](https://next-intl-docs.vercel.app/) for internationalization support
 
+## 📋 Technical Debt
+
+See [TECHNICAL_DEBT.md](./TECHNICAL_DEBT.md) for known issues and planned migrations that need future attention.
+
 ## 🔗 Links
 
 - [Live Demo](https://findwhoamai.com)
@@ -124,4 +128,4 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-Made with ❤️ using Claude AI
+Made with Claude AI
