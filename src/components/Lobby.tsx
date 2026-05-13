@@ -2,8 +2,9 @@
 
 import { createMatch, startMatch } from "@/lib/api";
 import { ProfileTypeId } from "@/types/domain";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 
 const ALL_PROFILE_TYPES: ProfileTypeId[] = [
   "PERSON",
@@ -12,14 +13,9 @@ const ALL_PROFILE_TYPES: ProfileTypeId[] = [
   "ANIMAL",
 ];
 
-const PROFILE_TYPE_LABEL: Record<ProfileTypeId, string> = {
-  PERSON: "Pessoa",
-  PLACE: "Lugar",
-  THING: "Objeto",
-  ANIMAL: "Animal",
-};
-
 export default function Lobby() {
+  const t = useTranslations("lobby");
+  const locale = useLocale();
   const router = useRouter();
   const [playerNames, setPlayerNames] = useState<string[]>([]);
   const [draft, setDraft] = useState<string>("");
@@ -29,11 +25,18 @@ export default function Lobby() {
   const [isStarting, setIsStarting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const PROFILE_TYPE_LABEL: Record<ProfileTypeId, string> = {
+    PERSON: t("profileTypes.person"),
+    PLACE: t("profileTypes.place"),
+    THING: t("profileTypes.thing"),
+    ANIMAL: t("profileTypes.animal"),
+  };
+
   function addPlayer() {
     const name = draft.trim();
     if (!name) return;
     if (playerNames.includes(name)) {
-      setError("A player with that name already exists");
+      setError(t("players.errorExists"));
       return;
     }
     setPlayerNames([...playerNames, name]);
@@ -55,28 +58,27 @@ export default function Lobby() {
 
   async function handleStart() {
     if (playerNames.length < 2) {
-      setError("At least 2 players are required to start the match");
+      setError(t("players.errorMinPlayers"));
       return;
     }
     if (allowedTypes.length === 0) {
-      setError("At least 1 profile type must be selected");
+      setError(t("profileTypes.errorMinTypes"));
       return;
     }
     setIsStarting(true);
     setError(null);
     try {
+      const apiLocale = locale === "pt" ? "pt-BR" : "en-US";
       const match = await createMatch({
         players: playerNames.map((name) => ({ name })),
         config: {
           targetRounds,
           allowedProfileTypes: allowedTypes,
           cluesPerCard: 10,
-          locale: "pt-BR",
+          locale: apiLocale,
         },
       });
       await startMatch(match.id);
-      // We'll wire navigation in the next step
-      console.log("Match started:", match.id);
       router.push(`/match/${match.id}`);
     } catch (err) {
       setError(
@@ -92,11 +94,11 @@ export default function Lobby() {
 
   return (
     <div className="max-w-md mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-center">Perfil Game</h1>
+      <h1 className="text-3xl font-bold text-center">{t("title")}</h1>
 
       {/* Players */}
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold">Players</h2>
+        <h2 className="text-xl font-semibold">{t("players.heading")}</h2>
 
         <div className="flex gap-2">
           <input
@@ -104,14 +106,14 @@ export default function Lobby() {
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addPlayer()}
-            placeholder="Player name"
+            placeholder={t("players.placeholder")}
             className="flex-1 px-3 py-2 border rounded-md"
           />
           <button
             onClick={addPlayer}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
-            Add
+            {t("players.addButton")}
           </button>
         </div>
 
@@ -126,7 +128,7 @@ export default function Lobby() {
                 <button
                   onClick={() => removePlayer(name)}
                   className="text-red-600 hover:text-red-800"
-                  aria-label={`Remove ${name}`}
+                  aria-label={t("players.removeAriaLabel", { name })}
                 >
                   ✕
                 </button>
@@ -138,7 +140,7 @@ export default function Lobby() {
 
       {/* Profile types */}
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold">Profile types</h2>
+        <h2 className="text-xl font-semibold">{t("profileTypes.heading")}</h2>
         <div className="grid grid-cols-2 gap-2">
           {ALL_PROFILE_TYPES.map((type) => (
             <label
@@ -159,7 +161,7 @@ export default function Lobby() {
       {/* Rounds */}
       <section className="space-y-2">
         <label htmlFor="rounds" className="block text-xl font-semibold">
-          Rounds
+          {t("rounds.heading")}
         </label>
         <input
           id="rounds"
@@ -185,7 +187,7 @@ export default function Lobby() {
         disabled={isStarting}
         className="w-full py-3 bg-green-600 text-white text-lg font-semibold rounded-md hover:bg-green-700 disabled:opacity-50"
       >
-        {isStarting ? "Generating first card…" : "Start match"}
+        {isStarting ? t("startingButton") : t("startButton")}
       </button>
     </div>
   );

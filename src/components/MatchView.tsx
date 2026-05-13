@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import {
   awardPoint,
   endMatch,
@@ -13,40 +13,43 @@ import {
 import type { Match, ProfileTypeId } from "@/types/domain";
 import { buildMatchSummary } from "@/lib/match-stats";
 import type { RoundSummary } from "@/lib/match-stats";
-
-const PROFILE_TYPE_LABEL: Record<ProfileTypeId, string> = {
-  PERSON: "Sou um Personagem ou Pessoa",
-  PLACE: "Sou um Lugar",
-  THING: "Sou uma Coisa",
-  ANIMAL: "Sou um Animal",
-};
-
-const PROFILE_TYPE_SHORT_LABEL: Record<ProfileTypeId, string> = {
-  PERSON: "Pessoa",
-  PLACE: "Lugar",
-  THING: "Coisa",
-  ANIMAL: "Animal",
-};
+import { useTranslations } from "next-intl";
 
 interface MatchViewProps {
   matchId: string;
 }
 
 export default function MatchView({ matchId }: MatchViewProps) {
+  const t = useTranslations("match");
+  const tSummary = useTranslations("matchSummary");
   const router = useRouter();
   const [match, setMatch] = useState<Match | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
+  const PROFILE_TYPE_LABEL: Record<ProfileTypeId, string> = {
+    PERSON: t("profileType.person"),
+    PLACE: t("profileType.place"),
+    THING: t("profileType.thing"),
+    ANIMAL: t("profileType.animal"),
+  };
+
+  const PROFILE_TYPE_SHORT_LABEL: Record<ProfileTypeId, string> = {
+    PERSON: t("profileTypeShort.person"),
+    PLACE: t("profileTypeShort.place"),
+    THING: t("profileTypeShort.thing"),
+    ANIMAL: t("profileTypeShort.animal"),
+  };
+
   // Load the match on mount
   useEffect(() => {
     getMatch(matchId)
       .then(setMatch)
       .catch((e) =>
-        setError(e instanceof Error ? e.message : "Failed to load match."),
+        setError(e instanceof Error ? e.message : t("errors.loadMatch")),
       );
-  }, [matchId]);
+  }, [matchId, t]);
 
   async function withPending<T>(
     action: () => Promise<T>,
@@ -56,7 +59,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
     try {
       return await action();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "An error occurred.");
+      setError(e instanceof Error ? e.message : t("errors.generic"));
     } finally {
       setIsPending(false);
     }
@@ -72,14 +75,14 @@ export default function MatchView({ matchId }: MatchViewProps) {
           onClick={() => router.push("/")}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md"
         >
-          Back to lobby
+          {t("backToLobby")}
         </button>
       </div>
     );
   }
 
   if (!match) {
-    return <div className="max-w-md mx-auto p-6">Loading match…</div>;
+    return <div className="max-w-md mx-auto p-6">{t("errors.loadMatch")}</div>;
   }
 
   const currentRound = match.rounds[match.rounds.length - 1];
@@ -95,7 +98,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
         const updated = await revealNextClue(matchId);
         setMatch({ ...updated });
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to reveal clue.");
+        setError(e instanceof Error ? e.message : t("errors.revealClue"));
       }
     });
   }
@@ -107,7 +110,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
         setMatch({ ...updated });
         setShowAnswer(true);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to award point.");
+        setError(e instanceof Error ? e.message : t("errors.awardPoint"));
       }
     });
   }
@@ -119,7 +122,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
         setMatch({ ...updated });
         setShowAnswer(true);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to skip round.");
+        setError(e instanceof Error ? e.message : t("errors.skipRound"));
       }
     });
   }
@@ -131,7 +134,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
         setMatch({ ...updated });
         setShowAnswer(false);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to advance round.");
+        setError(e instanceof Error ? e.message : t("errors.advanceRound"));
       }
     });
   }
@@ -142,7 +145,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
         const updated = await endMatch(matchId);
         setMatch({ ...updated });
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to end match.");
+        setError(e instanceof Error ? e.message : t("errors.endMatch"));
       }
     });
   }
@@ -158,11 +161,11 @@ export default function MatchView({ matchId }: MatchViewProps) {
 
     return (
       <div className="max-w-md mx-auto p-6 space-y-6">
-        <h1 className="text-3xl font-bold text-center">Match finished</h1>
+        <h1 className="text-3xl font-bold text-center">{tSummary("title")}</h1>
 
         {/* Ranking */}
         <section className="space-y-2">
-          <h2 className="text-xl font-semibold">Final ranking</h2>
+          <h2 className="text-xl font-semibold">{tSummary("ranking.heading")}</h2>
           <ul className="space-y-2">
             {ranking.map((player) => {
               const isWinner = player.wins === topScore && topScore > 0;
@@ -177,7 +180,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
                     {isWinner && "🏆 "}
                     {player.playerName}
                   </span>
-                  <span>{player.wins} pts</span>
+                  <span>{t("award.points", { count: player.wins })}</span>
                 </li>
               );
             })}
@@ -186,36 +189,36 @@ export default function MatchView({ matchId }: MatchViewProps) {
 
         {/* Match overview */}
         <section className="bg-blue-50 px-4 py-3 rounded-md space-y-1 text-sm">
-          <h2 className="text-base font-semibold mb-2">Match overview</h2>
+          <h2 className="text-base font-semibold mb-2">{tSummary("overview.heading")}</h2>
           <div className="flex justify-between">
-            <span className="text-gray-700">Rounds played</span>
+            <span className="text-gray-700">{tSummary("overview.roundsPlayed")}</span>
             <span className="font-medium">{summary.totalRounds}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-700">Rounds skipped</span>
+            <span className="text-gray-700">{tSummary("overview.roundsSkipped")}</span>
             <span className="font-medium">{summary.totalSkips}</span>
           </div>
           {summary.hardestRound && (
             <div className="flex justify-between">
-              <span className="text-gray-700">Hardest round</span>
+              <span className="text-gray-700">{tSummary("overview.hardestRound")}</span>
               <span className="font-medium">
                 {summary.hardestRound.answer} (
-                {summary.hardestRound.cluesRevealed} clues)
+                {tSummary("overview.cluesCount", { count: summary.hardestRound.cluesRevealed })})
               </span>
             </div>
           )}
           {summary.easiestRound && (
             <div className="flex justify-between">
-              <span className="text-gray-700">Easiest round</span>
+              <span className="text-gray-700">{tSummary("overview.easiestRound")}</span>
               <span className="font-medium">
                 {summary.easiestRound.answer} (
-                {summary.easiestRound.cluesRevealed} clues)
+                {tSummary("overview.cluesCount", { count: summary.easiestRound.cluesRevealed })})
               </span>
             </div>
           )}
           {summary.mostFrequentProfileType && (
             <div className="flex justify-between">
-              <span className="text-gray-700">Most frequent type</span>
+              <span className="text-gray-700">{tSummary("overview.mostFrequentType")}</span>
               <span className="font-medium">
                 {
                   PROFILE_TYPE_SHORT_LABEL[
@@ -230,7 +233,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
 
         {/* Player stats */}
         <section className="space-y-2">
-          <h2 className="text-xl font-semibold">Player stats</h2>
+          <h2 className="text-xl font-semibold">{tSummary("playerStats.heading")}</h2>
           <ul className="space-y-2">
             {summary.playerStats.map((player) => (
               <li
@@ -239,11 +242,11 @@ export default function MatchView({ matchId }: MatchViewProps) {
               >
                 <div className="font-medium">{player.playerName}</div>
                 <div className="text-sm text-gray-600 mt-1">
-                  {player.wins} {player.wins === 1 ? "win" : "wins"}
+                  {tSummary("playerStats.wins", { count: player.wins })}
                   {player.averageCluesToWin !== null && (
                     <>
                       {" · "}
-                      avg {player.averageCluesToWin.toFixed(1)} clues to win
+                      {tSummary("playerStats.avgClues", { count: player.averageCluesToWin.toFixed(1) })}
                     </>
                   )}
                 </div>
@@ -254,10 +257,10 @@ export default function MatchView({ matchId }: MatchViewProps) {
 
         {/* Round-by-round */}
         <section className="space-y-2">
-          <h2 className="text-xl font-semibold">Round by round</h2>
+          <h2 className="text-xl font-semibold">{tSummary("roundByRound.heading")}</h2>
           <ul className="space-y-2">
             {summary.rounds.map((round) => (
-              <RoundSummaryCard key={round.index} round={round} />
+              <RoundSummaryCard key={round.index} round={round} PROFILE_TYPE_SHORT_LABEL={PROFILE_TYPE_SHORT_LABEL} />
             ))}
           </ul>
         </section>
@@ -267,7 +270,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
           onClick={() => router.push("/")}
           className="w-full py-3 bg-blue-600 text-white text-lg font-semibold rounded-md hover:bg-blue-700"
         >
-          New match
+          {tSummary("newMatch")}
         </button>
       </div>
     );
@@ -278,7 +281,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
   // ============================================================
 
   if (!currentRound) {
-    return <div className="max-w-md mx-auto p-6">No active round.</div>;
+    return <div className="max-w-md mx-auto p-6">{t("noActiveRound")}</div>;
   }
 
   const visibleClues = currentRound.card.clues.slice(
@@ -293,13 +296,13 @@ export default function MatchView({ matchId }: MatchViewProps) {
     <div className="max-w-md mx-auto p-6 space-y-6">
       {/* Header */}
       <header className="flex items-center justify-between text-sm text-gray-600">
-        <span>Round {currentRound.index + 1}</span>
+        <span>{t("header.round", { number: currentRound.index + 1 })}</span>
         <button
           onClick={handleEndMatch}
           disabled={isPending}
           className="text-red-600 hover:text-red-800"
         >
-          End match
+          {t("header.endMatch")}
         </button>
       </header>
 
@@ -319,7 +322,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
             onClick={() => setShowAnswer(true)}
             className="text-sm text-gray-500 underline"
           >
-            Reveal answer (moderator only)
+            {t("answer.reveal")}
           </button>
         )}
       </div>
@@ -342,15 +345,18 @@ export default function MatchView({ matchId }: MatchViewProps) {
           className="w-full py-3 bg-blue-600 text-white text-lg font-semibold rounded-md hover:bg-blue-700"
         >
           {isPending
-            ? "Loading…"
-            : `Next clue (${currentRound.revealedClues}/${currentRound.card.clues.length})`}
+            ? t("errors.generic")
+            : t("clues.nextButton", {
+                current: currentRound.revealedClues,
+                total: currentRound.card.clues.length
+              })}
         </button>
       )}
 
       {/* Award buttons */}
       {!roundEnded && (
         <section className="space-y-2">
-          <h2 className="font-semibold">Award point to:</h2>
+          <h2 className="font-semibold">{t("award.heading")}</h2>
           <div className="grid grid-cols-2 gap-2">
             {match.players.map((player) => (
               <button
@@ -361,7 +367,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
               >
                 <div className="font-medium">{player.name}</div>
                 <div className="text-xs text-gray-600">
-                  {match.scores[player.id] ?? 0} pts
+                  {t("award.points", { count: match.scores[player.id] ?? 0 })}
                 </div>
               </button>
             ))}
@@ -371,7 +377,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
             disabled={isPending}
             className="w-full py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm"
           >
-            Skip round (no winner)
+            {t("award.skipButton")}
           </button>
         </section>
       )}
@@ -383,7 +389,7 @@ export default function MatchView({ matchId }: MatchViewProps) {
           disabled={isPending}
           className="w-full py-3 bg-blue-600 text-white text-lg font-semibold rounded-md hover:bg-blue-700"
         >
-          {isPending ? "Generating next card…" : "Next round →"}
+          {isPending ? t("generatingCard") : t("nextRound")}
         </button>
       )}
 
@@ -397,25 +403,37 @@ export default function MatchView({ matchId }: MatchViewProps) {
   );
 }
 
-function RoundSummaryCard({ round }: { round: RoundSummary }) {
+function RoundSummaryCard({
+  round,
+  PROFILE_TYPE_SHORT_LABEL
+}: {
+  round: RoundSummary;
+  PROFILE_TYPE_SHORT_LABEL: Record<ProfileTypeId, string>;
+}) {
+  const tSummary = useTranslations("matchSummary");
   const wasSkipped = round.winnerName === null;
 
   return (
     <li className="px-4 py-3 bg-gray-100 rounded-md">
       <div className="flex items-center justify-between">
         <span className="text-xs text-gray-500 uppercase tracking-wide">
-          Round {round.index + 1} ·{" "}
+          {tSummary("roundByRound.roundLabel", { number: round.index + 1 })} ·{" "}
           {PROFILE_TYPE_SHORT_LABEL[round.profileType]}
         </span>
         <span className="text-xs text-gray-500">
-          {round.cluesRevealed}/{round.totalClues} clues
+          {tSummary("roundByRound.cluesRevealed", {
+            revealed: round.cluesRevealed,
+            total: round.totalClues
+          })}
         </span>
       </div>
       <div className="font-medium mt-1">{round.answer}</div>
       <div
         className={`text-sm mt-1 ${wasSkipped ? "text-gray-500 italic" : "text-green-700"}`}
       >
-        {wasSkipped ? "No winner" : `Won by ${round.winnerName}`}
+        {wasSkipped
+          ? tSummary("roundByRound.noWinner")
+          : tSummary("roundByRound.wonBy", { name: round.winnerName || "" })}
       </div>
     </li>
   );
