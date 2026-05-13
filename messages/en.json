@@ -1,0 +1,116 @@
+{
+  "common": {
+    "appName": "FindWhoAmAI",
+    "loading": "Loading…",
+    "error": "Error",
+    "back": "Back",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "metadata": {
+    "title": "FindWhoAmAI — AI-powered guessing game",
+    "description": "An AI-powered take on the classic 'Perfil' guessing game. Add players, draw a card, race to guess the answer.",
+    "twitterDescription": "An AI-powered take on the classic 'Perfil' guessing game."
+  },
+  "demoBanner": {
+    "message": "Public demo · AI card generation may pause if the credit runs out"
+  },
+  "lobby": {
+    "title": "Perfil Game",
+    "players": {
+      "heading": "Players",
+      "placeholder": "Player name",
+      "addButton": "Add",
+      "removeAriaLabel": "Remove {name}",
+      "errorExists": "A player with that name already exists",
+      "errorMinPlayers": "At least 2 players are required to start the match"
+    },
+    "profileTypes": {
+      "heading": "Profile types",
+      "person": "Person",
+      "place": "Place",
+      "thing": "Thing",
+      "animal": "Animal",
+      "errorMinTypes": "At least 1 profile type must be selected"
+    },
+    "rounds": {
+      "heading": "Rounds"
+    },
+    "startButton": "Start match",
+    "startingButton": "Generating first card…"
+  },
+  "match": {
+    "header": {
+      "round": "Round {number}",
+      "endMatch": "End match"
+    },
+    "profileType": {
+      "person": "I am a Character or Person",
+      "place": "I am a Place",
+      "thing": "I am a Thing",
+      "animal": "I am an Animal"
+    },
+    "profileTypeShort": {
+      "person": "Person",
+      "place": "Place",
+      "thing": "Thing",
+      "animal": "Animal"
+    },
+    "answer": {
+      "reveal": "Reveal answer (moderator only)"
+    },
+    "clues": {
+      "nextButton": "Next clue ({current}/{total})"
+    },
+    "award": {
+      "heading": "Award point to:",
+      "points": "{count} pts",
+      "skipButton": "Skip round (no winner)"
+    },
+    "nextRound": "Next round →",
+    "generatingCard": "Generating next card…",
+    "errors": {
+      "loadMatch": "Failed to load match.",
+      "revealClue": "Failed to reveal clue.",
+      "awardPoint": "Failed to award point.",
+      "skipRound": "Failed to skip round.",
+      "advanceRound": "Failed to advance round.",
+      "endMatch": "Failed to end match.",
+      "generic": "An error occurred."
+    },
+    "backToLobby": "Back to lobby",
+    "noActiveRound": "No active round."
+  },
+  "matchSummary": {
+    "title": "Match finished",
+    "ranking": {
+      "heading": "Final ranking"
+    },
+    "overview": {
+      "heading": "Match overview",
+      "roundsPlayed": "Rounds played",
+      "roundsSkipped": "Rounds skipped",
+      "hardestRound": "Hardest round",
+      "easiestRound": "Easiest round",
+      "mostFrequentType": "Most frequent type",
+      "cluesCount": "{count} clues"
+    },
+    "playerStats": {
+      "heading": "Player stats",
+      "wins": "{count, plural, =1 {# win} other {# wins}}",
+      "avgClues": "avg {count} clues to win"
+    },
+    "roundByRound": {
+      "heading": "Round by round",
+      "roundLabel": "Round {number}",
+      "cluesRevealed": "{revealed}/{total} clues",
+      "wonBy": "Won by {name}",
+      "noWinner": "No winner"
+    },
+    "newMatch": "New match"
+  },
+  "languageSwitcher": {
+    "ariaLabel": "Switch language",
+    "selectLanguage": "Select language"
+  }
+}

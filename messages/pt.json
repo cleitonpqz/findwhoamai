@@ -1,0 +1,116 @@
+{
+  "common": {
+    "appName": "FindWhoAmAI",
+    "loading": "Carregando…",
+    "error": "Erro",
+    "back": "Voltar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
+  },
+  "metadata": {
+    "title": "FindWhoAmAI — Jogo de adivinhação com IA",
+    "description": "Uma versão com IA do clássico jogo 'Perfil'. Adicione jogadores, compre uma carta e corra para adivinhar a resposta.",
+    "twitterDescription": "Uma versão com IA do clássico jogo 'Perfil'."
+  },
+  "demoBanner": {
+    "message": "Demo pública · A geração de cartas pode pausar se o crédito acabar"
+  },
+  "lobby": {
+    "title": "Jogo Perfil",
+    "players": {
+      "heading": "Jogadores",
+      "placeholder": "Nome do jogador",
+      "addButton": "Adicionar",
+      "removeAriaLabel": "Remover {name}",
+      "errorExists": "Já existe um jogador com esse nome",
+      "errorMinPlayers": "É necessário pelo menos 2 jogadores para iniciar a partida"
+    },
+    "profileTypes": {
+      "heading": "Tipos de perfil",
+      "person": "Pessoa",
+      "place": "Lugar",
+      "thing": "Coisa",
+      "animal": "Animal",
+      "errorMinTypes": "Pelo menos 1 tipo de perfil deve ser selecionado"
+    },
+    "rounds": {
+      "heading": "Rodadas"
+    },
+    "startButton": "Iniciar partida",
+    "startingButton": "Gerando primeira carta…"
+  },
+  "match": {
+    "header": {
+      "round": "Rodada {number}",
+      "endMatch": "Encerrar partida"
+    },
+    "profileType": {
+      "person": "Sou um Personagem ou Pessoa",
+      "place": "Sou um Lugar",
+      "thing": "Sou uma Coisa",
+      "animal": "Sou um Animal"
+    },
+    "profileTypeShort": {
+      "person": "Pessoa",
+      "place": "Lugar",
+      "thing": "Coisa",
+      "animal": "Animal"
+    },
+    "answer": {
+      "reveal": "Revelar resposta (somente moderador)"
+    },
+    "clues": {
+      "nextButton": "Próxima dica ({current}/{total})"
+    },
+    "award": {
+      "heading": "Dar ponto para:",
+      "points": "{count} pts",
+      "skipButton": "Pular rodada (sem vencedor)"
+    },
+    "nextRound": "Próxima rodada →",
+    "generatingCard": "Gerando próxima carta…",
+    "errors": {
+      "loadMatch": "Falha ao carregar partida.",
+      "revealClue": "Falha ao revelar dica.",
+      "awardPoint": "Falha ao dar ponto.",
+      "skipRound": "Falha ao pular rodada.",
+      "advanceRound": "Falha ao avançar rodada.",
+      "endMatch": "Falha ao encerrar partida.",
+      "generic": "Ocorreu um erro."
+    },
+    "backToLobby": "Voltar ao lobby",
+    "noActiveRound": "Nenhuma rodada ativa."
+  },
+  "matchSummary": {
+    "title": "Partida encerrada",
+    "ranking": {
+      "heading": "Ranking final"
+    },
+    "overview": {
+      "heading": "Resumo da partida",
+      "roundsPlayed": "Rodadas jogadas",
+      "roundsSkipped": "Rodadas puladas",
+      "hardestRound": "Rodada mais difícil",
+      "easiestRound": "Rodada mais fácil",
+      "mostFrequentType": "Tipo mais frequente",
+      "cluesCount": "{count} dicas"
+    },
+    "playerStats": {
+      "heading": "Estatísticas dos jogadores",
+      "wins": "{count, plural, =1 {# vitória} other {# vitórias}}",
+      "avgClues": "média {count} dicas para vencer"
+    },
+    "roundByRound": {
+      "heading": "Rodada por rodada",
+      "roundLabel": "Rodada {number}",
+      "cluesRevealed": "{revealed}/{total} dicas",
+      "wonBy": "Vencida por {name}",
+      "noWinner": "Sem vencedor"
+    },
+    "newMatch": "Nova partida"
+  },
+  "languageSwitcher": {
+    "ariaLabel": "Trocar idioma",
+    "selectLanguage": "Selecionar idioma"
+  }
+}

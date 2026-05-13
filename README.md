@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FindWhoAmAI
 
-## Getting Started
+An AI-powered take on the classic "Perfil" guessing game. Add players, draw cards, and race to guess the answer as clues are revealed!
 
-First, run the development server:
+## 🌍 Internationalization
 
+This app is **fully internationalized** and supports multiple languages:
+
+- 🇺🇸 **English** (en)
+- 🇧🇷 **Portuguese** (pt)
+
+The app automatically detects the user's preferred language from their browser settings and allows manual language switching via the UI.
+
+### Want to add a new language?
+
+We welcome translations! Check out [CONTRIBUTING_I18N.md](./CONTRIBUTING_I18N.md) for step-by-step instructions on how to add support for your language.
+
+📖 For more details about the i18n implementation, see [README_I18N.md](./README_I18N.md)
+
+## 🎮 Features
+
+- **Multiplayer gameplay** - Add 2+ players
+- **AI-generated cards** - Unique clues powered by Claude AI
+- **Multiple profile types** - Person, Place, Thing, Animal
+- **Customizable rounds** - Choose how many rounds to play
+- **Match statistics** - View detailed stats and round-by-round breakdowns
+- **Fully responsive** - Works on desktop and mobile
+- **Internationalized** - Available in multiple languages
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm, yarn, pnpm, or bun
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/perfil-game.git
+cd perfil-game
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Add your Anthropic API key to `.env.local`:
+```
+ANTHROPIC_API_KEY=your_api_key_here
+```
 
-## Learn More
+4. Run the development server:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the app.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🏗️ Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Framework**: [Next.js 16](https://nextjs.org) (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4
+- **AI**: Anthropic Claude API
+- **Internationalization**: [next-intl](https://next-intl-docs.vercel.app/)
+- **Fonts**: [Geist](https://vercel.com/font)
 
-## Deploy on Vercel
+## 📁 Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+├── messages/              # Translation files (en.json, pt.json)
+├── src/
+│   ├── app/
+│   │   ├── [locale]/     # Localized app routes
+│   │   └── api/          # API routes
+│   ├── components/       # React components
+│   ├── i18n/            # i18n configuration
+│   ├── lib/             # Utilities and API functions
+│   └── types/           # TypeScript types
+├── CONTRIBUTING_I18N.md # Translation contribution guide
+└── README_I18N.md       # i18n documentation
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🤝 Contributing
+
+Contributions are welcome! Here are some ways you can help:
+
+### Adding Translations
+
+See [CONTRIBUTING_I18N.md](./CONTRIBUTING_I18N.md) for detailed instructions on adding a new language.
+
+### Code Contributions
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Open a Pull Request
+
+## 📝 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🙏 Acknowledgments
+
+- Original "Perfil" game concept
+- [Anthropic](https://anthropic.com) for Claude AI
+- [Next.js](https://nextjs.org) team for the amazing framework
+- [next-intl](https://next-intl-docs.vercel.app/) for internationalization support
+
+## 🔗 Links
+
+- [Live Demo](https://findwhoamai.com)
+- [Report a Bug](https://github.com/yourusername/perfil-game/issues)
+- [Request a Feature](https://github.com/yourusername/perfil-game/issues)
+
+---
+
+Made with ❤️ using Claude AI
