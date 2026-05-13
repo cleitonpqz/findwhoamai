@@ -15,6 +15,7 @@ import fallbackData from "./fallback-cards.json";
 
 async function generateCardFromApi(
   profileType: ProfileTypeId,
+  locale: string,
   exclusions: string[],
 ): Promise<Card | null> {
   try {
@@ -24,7 +25,7 @@ async function generateCardFromApi(
       body: JSON.stringify({
         profileType,
         cluesPerCard: 10,
-        locale: "pt-BR",
+        locale,
         exclusions,
       }),
     });
@@ -76,6 +77,7 @@ const matchStore = new Map<string, Match>();
 
 async function nextCard(
   allowedTypes: ProfileTypeId[],
+  locale: string,
   exclusions: string[] = [],
 ): Promise<Card> {
   // Pick a random allowed profile type — falls back to all types if none specified
@@ -86,7 +88,7 @@ async function nextCard(
   const chosenType = types[Math.floor(Math.random() * types.length)];
 
   // Try to generate via Claude; fall back to hardcoded cards on failure
-  const generated = await generateCardFromApi(chosenType, exclusions);
+  const generated = await generateCardFromApi(chosenType, locale, exclusions);
   if (generated) {
     return generated;
   }
@@ -139,7 +141,7 @@ export async function startMatch(matchId: string): Promise<Match> {
 
   const firstRound = {
     index: 0,
-    card: await nextCard(match.config.allowedProfileTypes, []),
+    card: await nextCard(match.config.allowedProfileTypes, match.config.locale, []),
     revealedClues: 1,
     winner: null,
     ended: false,
@@ -205,6 +207,7 @@ export async function nextRound(matchId: string): Promise<Match> {
     index: match.rounds.length,
     card: await nextCard(
       match.config.allowedProfileTypes,
+      match.config.locale,
       collectAnswers(match),
     ),
     revealedClues: 1,
