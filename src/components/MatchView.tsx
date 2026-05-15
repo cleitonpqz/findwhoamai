@@ -14,6 +14,7 @@ import type { Match, ProfileTypeId } from "@/types/domain";
 import { buildMatchSummary } from "@/lib/match-stats";
 import type { RoundSummary } from "@/lib/match-stats";
 import { useTranslations } from "next-intl";
+import ShareResultButton from "./ShareResultButton";
 
 interface MatchViewProps {
   matchId: string;
@@ -162,6 +163,9 @@ export default function MatchView({ matchId }: MatchViewProps) {
     return (
       <div className="max-w-md mx-auto p-6 space-y-6">
         <h1 className="text-3xl font-bold text-center">{tSummary("title")}</h1>
+
+        {/* Share Result Button */}
+        <ShareResultButton match={match} />
 
         {/* Ranking */}
         <section className="space-y-2">
