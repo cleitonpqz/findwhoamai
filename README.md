@@ -2,20 +2,9 @@
 
 An AI-powered take on the classic "Perfil" guessing game. Add players, draw cards, and race to guess the answer as clues are revealed!
 
-## 🌍 Internationalization
+## Internationalization
 
-This app is **fully internationalized** and supports multiple languages:
-
-- 🇺🇸 **English** (en)
-- 🇧🇷 **Portuguese** (pt)
-
-The app automatically detects the user's preferred language from their browser settings and allows manual language switching via the UI.
-
-### Want to add a new language?
-
-We welcome translations! Check out [CONTRIBUTING_I18N.md](./CONTRIBUTING_I18N.md) for step-by-step instructions on how to add support for your language.
-
-📖 For more details about the i18n implementation, see [README_I18N.md](./README_I18N.md)
+The app supports English and Portuguese. Locale is auto-detected from the browser and can be changed manually. See [`docs/i18n.md`](./docs/i18n.md) for architecture details and how to add a new language.
 
 ## 🎮 Features
 
@@ -85,8 +74,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 │   ├── i18n/            # i18n configuration
 │   ├── lib/             # Utilities and API functions
 │   └── types/           # TypeScript types
-├── CONTRIBUTING_I18N.md # Translation contribution guide
-└── README_I18N.md       # i18n documentation
+└── docs/                # Documentation
 ```
 
 ## 🤝 Contributing
@@ -95,7 +83,7 @@ Contributions are welcome! Here are some ways you can help:
 
 ### Adding Translations
 
-See [CONTRIBUTING_I18N.md](./CONTRIBUTING_I18N.md) for detailed instructions on adding a new language.
+See [`docs/i18n.md`](./docs/i18n.md) for instructions on adding a new language.
 
 ### Code Contributions
 
