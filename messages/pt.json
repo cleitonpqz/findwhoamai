@@ -112,5 +112,10 @@
   "languageSwitcher": {
     "ariaLabel": "Trocar idioma",
     "selectLanguage": "Selecionar idioma"
+  },
+  "share": {
+    "button": "Compartilhar resultado",
+    "copied": "Copiado!",
+    "error": "Não foi possível compartilhar"
   }
 }
